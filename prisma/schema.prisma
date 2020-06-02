@@ -1,0 +1,308 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum logsStatus {
+  DONE
+  WIP
+  REFINING
+  DEFINING
+  NO
+  NA
+}
+
+enum GRC {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum auditMethodology {
+  WHITE_BOX
+  GREY_BOX
+  BLACK_BOX
+}
+
+enum auditTool {
+  MANUAL
+  AUTOMATIC
+}
+
+enum vulnerabilityRisk {
+  INFO
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum vulnerabilityStatus {
+  OPEN
+  FALSE_POSITIVE
+  ASSUMED
+  MITIGATED
+  SOLVED
+  ON_REVISON
+}
+
+enum evidenceFiles {
+  TXT
+  IMG
+}
+
+enum assetType {
+  WEB
+  API
+  APP
+  IOT
+}
+
+enum sourceType {
+  AUDIT
+  NOTIFICATION
+  RED_TEAM
+}
+
+enum enviromentType {
+  PRO
+  PRE
+}
+
+enum assetStatus {
+  ON_PRODUCTION
+  ON_DEVELOPMENT
+  TO_BE_DECOMISSIONED
+  DECOMISSIONED
+}
+
+model Asset {
+  id              Int              @default(autoincrement()) @id
+  servers         Server[]         @relation(references: [id])
+  area            Area?            @relation(fields: [areaId], references: [id])
+  areaId          Int?
+  characteristics Characteristic[] @relation(references: [name])
+  contacts        ContactToAsset[]
+  name            String           @unique
+  alias           String?
+  confidentiality GRC?             
+  authorization   GRC?             
+  integrity       GRC?             
+  availability    GRC?             
+  trazability     GRC?             
+  accessLogs      logsStatus?      @default(NO)
+  activityLogs    logsStatus?      @default(NO)
+  status          assetStatus?     @default(ON_PRODUCTION)
+  statusDate      DateTime?        @default(now())
+  repository      String?
+  risk            Float?           @default(0)
+  documentation   String?
+  description     String?
+  assetType       assetType        @default(WEB)
+}
+
+model Contact {
+  assets  ContactToAsset[]
+  servers ContactToServer[]
+  id      Int               @default(autoincrement()) @id
+  name    String            @unique
+  tlf     String
+  email   String
+}
+
+model ContactToAsset {
+  contact       Contact @relation(fields: [contactId], references: [id])
+  contactId     Int
+  asset         Asset   @relation(fields: [assetId], references: [id])
+  assetId       Int
+  functionality String
+
+  @@id([contactId, assetId])
+}
+
+model ContactToServer {
+  contact       Contact @relation(fields: [contactId], references: [id])
+  contactId     Int
+  server        Server  @relation(fields: [serverId], references: [id])
+  serverId      Int
+  functionality String
+
+  @@id([contactId, serverId])
+}
+
+model Audit {
+  id          Int              @default(autoincrement()) @id
+  asset       Asset            @relation(fields: [assetId], references: [id])
+  assetId     Int
+  auditor     User?            @relation(fields: [auditorId], references: [id])
+  auditorId   Int?
+  domain      Domain?          @relation(fields: [domainId], references: [id])
+  domainId    Int?
+  name        String           @unique
+  auditDate   DateTime
+  finished    Boolean          @default(false)
+  methodology auditMethodology @default(BLACK_BOX)
+  tool        auditTool        @default(MANUAL)
+  scope       String?
+}
+
+model Vulnerability {
+  id                         Int                 @default(autoincrement()) @id
+  asset                      Asset               @relation(fields: [assetId], references: [id])
+  assetId                    Int
+  responsable                Contact?            @relation(fields: [responsableId], references: [id])
+  responsableId              Int?
+  audit                      Audit?              @relation(fields: [auditId], references: [id])
+  auditId                    Int?
+  cwe                        CWE?                @relation(fields: [cweId], references: [id])
+  cweId                      Int?
+  auditor                    User?               @relation(fields: [auditorId], references: [id])
+  auditorId                  Int?
+  name                       String
+  discoveryDate              DateTime            @default(now())
+  communicationDate          DateTime?
+  mitigationDate             DateTime?
+  resolutionDate             DateTime?
+  description                String
+  executedTest               String
+  recommendation             String
+  risk                       vulnerabilityRisk
+  status                     vulnerabilityStatus
+  ticket                     String?
+  source                     sourceType
+  cvssAttackvector           String?
+  cvssAttackcomplexity       String?
+  cvssPrivilegesrequired     String?
+  cvssUserinteraction        String?
+  cvssScope                  String?
+  cvssConfidentiality        String?
+  cvssIntegrity              String?
+  cvssAvailability           String?
+  cvssExploitability         String?
+  cvssRemediation_level      String?
+  cvssReportconfidence       String?
+  threatagentSkill           String?
+  threatagentMotive          String?
+  threatagentOpportunity     String?
+  threatagentSize            String?
+  cvssEnviromentalAV         String?
+  cvssEnviromentalAC         String?
+  cvssEnviromentalPR         String?
+  cvssEnviromentalUI         String?
+  cvssEnviromentalS          String?
+  cvssEnviromentalCI         String?
+  cvssEnviromentalII         String?
+  cvssEnviromentalAI         String?
+  cvssEnviromentalCR         String?
+  cvssEnviromentalIR         String?
+  cvssEnviromentalAR         String?
+  vulnerabilityEasediscovery String?
+  vulnerabilityEasexploit    String?
+  vulnerabilityAwaremess     String?
+  vulnerabilityDetection     String?
+  techimpactConfidentiality  String?
+  techimpactIntegrity        String?
+  techimpactAvailability     String?
+  techimpactAccountability   String?
+  bussimpactFinancial        String?
+  bussimpactReputation       String?
+  bussimpactNoncompliance    String?
+  bussimpactPrivacyviolation String?
+}
+
+model Evidence {
+  id              Int           @default(autoincrement()) @id
+  vulnerability   Vulnerability @relation(fields: [vulnerabilityId], references: [id])
+  vulnerabilityId Int
+  path            String
+  description     String
+  evidenceType    evidenceFiles
+}
+
+model Server {
+  ip              IP?                @relation(fields: [ipId], references: [id])
+  ipId            Int?
+  assets          Asset[]           @relation(references: [id])
+  characteristics Characteristic[]  @relation(references: [name])
+  contacts        ContactToServer[]
+  id              Int               @default(autoincrement()) @id
+  hostname        String            @unique
+}
+
+model IP {
+  id        Int     @default(autoincrement()) @id
+  network   Network @relation(fields: [networkId], references: [id])
+  networkId Int
+  ip        String  @unique
+}
+
+model Network {
+  id          Int    @default(autoincrement()) @id
+  ips         IP[]
+  name        String @unique
+  description String
+}
+
+model Characteristic {
+  name   String   @id
+  asset  Asset[]  @relation(references: [id])
+  server Server[] @relation(references: [id])
+}
+
+model Area {
+  id   Int    @default(autoincrement()) @id
+  name String @unique
+  description String
+}
+
+model CWE {
+  id          Int    @default(autoincrement()) @id
+  cweId       String
+  name        String
+  description String
+}
+
+model Permission {
+  name     String    @id
+  profiles Profile[] @relation(references: [id])
+}
+
+model Profile {
+  id          Int          @default(autoincrement()) @id
+  permissions Permission[] @relation(references: [name])
+  name        String       @unique
+}
+
+model Domain {
+  id            Int            @default(autoincrement()) @id
+  asset         Asset          @relation(fields: [assetId], references: [id])
+  assetId       Int
+  certificate   Certificate?   @relation(fields: [certificateId], references: [id])
+  certificateId Int?
+  url           String         @unique
+  enviroment    enviromentType @default(PRO)
+  waf        Boolean
+  privateDomain Boolean
+}
+
+model Certificate {
+  id         Int      @default(autoincrement()) @id
+  domainName String   @unique
+  wildcard   Boolean
+  issuer     String
+  expirationDate DateTime
+}
+
+model User {
+  id        Int     @default(autoincrement()) @id
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int
+  name      String  @unique
+  hash      String
+}
