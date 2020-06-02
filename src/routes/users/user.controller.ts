@@ -30,7 +30,7 @@ class UserController extends EntityController {
             const keygen = PW_KEYGENERATOR
             const key = crypto.scryptSync(keygen, 'salt', 24);
             const iv = Buffer.alloc(16, 0);
-            const cipher = crypto.createCipheriv(algorithm, key, iv);
+            const cipher = crypto.createCipheriv('aes-192-cbc', key, iv);
 
 
 
