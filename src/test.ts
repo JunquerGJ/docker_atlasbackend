@@ -5,8 +5,8 @@ import * as crypto from 'crypto';
 const prisma = new PrismaClient()
 
 async function main() {
-//    await createPerms()
-//    await createProfiles()
+    await createPerms()
+    await createProfiles()
     await createUser()
 }
 
