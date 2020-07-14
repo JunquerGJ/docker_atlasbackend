@@ -1,5 +1,8 @@
 import { EntityService } from '../../shared/interfaces/interfaces'
 import { PrismaClient } from "@prisma/client"
+import IPService from '../ips/ip.service';
+import CharacteristicService from '../characteristics/characteristic.service';
+import ContactService from '../contacts/contact.service';
 
 const prisma = new PrismaClient()
 
@@ -7,22 +10,53 @@ class ServerService extends EntityService {
     constructor() {
         super(prisma.server);
     }
+
+    public static addServers(entityData){
+        var aux = {
+            create : [],
+            connect : []
+        }
+        var i = 0;
+        for (i = 0; i < entityData.length; i++) {
+            if ("ip" in entityData[i]) {
+                delete entityData[i].id
+                delete entityData[i].assets
+
+                if (entityData[i].characteristics) {
+                    CharacteristicService.addCharacteristics(entityData[i].characteristics)
+                    entityData[i].characteristics = {
+                        connect: entityData[i].characteristics
+                    }
+                }
+                if (entityData[i].ip) {
+                    entityData[i].ip = IPService.addIP(entityData[i].ip)
+                }
+
+                if (entityData[i].contacts) {
+                    entityData[i].contacts = { create : ContactService.addContact(entityData[i].contacts) }
+                }
+                aux.create.push(entityData[i])
+            } else {
+                aux.connect.push({
+                    hostname: entityData[i].hostname
+                })
+            }
+        }
+        return aux
+    }
+
     public add = async (entityData) => {
         try {
             if (entityData.characteristics) {
-                var i = 0;
-                for (i = 0; i < entityData.characteristics.length; i++) {
-                    await prisma.characteristic.upsert({
-                        update: { name: entityData.characteristics[i].name },
-                        create: { name: entityData.characteristics[i].name },
-                        where: { name: entityData.characteristics[i].name }
-                    })
-                }
+                await CharacteristicService.addCharacteristics(entityData.characteristics)
                 entityData.characteristics = {
                     connect: entityData.characteristics
                 }
             }
-            if (entityData.ip) {
+            if(entityData.ip){
+                entityData.ip = IPService.addIP(entityData.ip)
+            }
+            /*if (entityData.ip) {
                 if (entityData.ip.network) {
                     if (entityData.ip.network.description) {
                         entityData.ip = {
@@ -50,13 +84,13 @@ class ServerService extends EntityService {
                         connect: entityData.ip
                     }
                 }
-            }
+            }*/
             if (entityData.assets) {
                 entityData.assets = {
                     connect: entityData.assets
                 }
             }
-            if (entityData.contacts) {
+            /*if (entityData.contacts) {
                 var aux = []
                 var i = 0;
                 for (i = 0; i < entityData.contacts.length; i++) {
@@ -82,6 +116,12 @@ class ServerService extends EntityService {
                 entityData.contacts = {
                     create: aux
                 }
+            }*/
+
+            if (entityData.contacts) {
+                entityData.contacts = {
+                    create: ContactService.addContact(entityData.contacts)
+                }
             }
 
             const entity = await prisma.server.create({
@@ -90,7 +130,7 @@ class ServerService extends EntityService {
             return entity;
         } catch (error) {
             console.log(error)
-            throw new Error(error.message)
+            throw error
         }
     }
 
@@ -179,8 +219,7 @@ class ServerService extends EntityService {
             })
             return entity;
         } catch (error) {
-            console.log(error)
-            throw new Error(error.message)
+            throw error
         }
 
     }

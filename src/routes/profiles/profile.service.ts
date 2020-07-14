@@ -20,7 +20,8 @@ class ProfileService extends EntityService {
             })
             return entity;
         } catch (error) {
-            throw new Error(error.message)
+            console.log(error)
+            throw error
         }
     }
 
@@ -43,7 +44,7 @@ class ProfileService extends EntityService {
             })
             return entity;
         } catch (error) {
-            throw new Error(error.message)
+            throw error
         }
     }
 }

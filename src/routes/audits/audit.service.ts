@@ -29,7 +29,7 @@ class AuditService extends EntityService {
 
         } catch (error) {
             console.log(error)
-            throw new Error(error.message)
+            throw error
         }
     }
 
@@ -62,7 +62,7 @@ class AuditService extends EntityService {
             return entity;
             
         } catch (error) {
-            
+            throw error   
         }
     }
 }

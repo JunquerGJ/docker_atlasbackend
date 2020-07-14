@@ -29,6 +29,7 @@
     "jsonwebtoken": "*",
     "knex": "*",
     "moment": "*",
+    "morgan": "^1.10.0",
     "multer": "*",
     "oauth": "^0.9.15",
     "pg": "*",

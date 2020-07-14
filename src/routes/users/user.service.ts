@@ -24,7 +24,8 @@ class UserService extends EntityService {
             })
             return user;
         } catch (error){
-            
+            console.log(error)
+            throw error
         }
     }
 
@@ -53,7 +54,7 @@ class UserService extends EntityService {
             })
             return entity;
         } catch (error) {
-            throw new Error(error.message)
+            throw error
         }        
 
 
@@ -73,7 +74,7 @@ class UserService extends EntityService {
                 }
             })
         } catch (error) {
-            throw new Error(error.message)
+            throw error
         }
     }
 
@@ -95,7 +96,7 @@ class UserService extends EntityService {
             })
             return entities;
         } catch (error) {
-            throw new Error(error.message)
+            throw error
         }
     }
 }

@@ -1,5 +1,6 @@
 import  { EntityService } from '../../shared/interfaces/interfaces'
 import { PrismaClient } from "@prisma/client"
+import NetworkService from '../networks/network.service';
 
 const prisma = new PrismaClient()
 
@@ -8,10 +9,23 @@ class IPService extends EntityService {
         super(prisma.iP);
     }
 
+
+    public static addIP(entityData){
+        var aux = {}
+        if(entityData.network){
+            delete entityData.id
+            aux["create"] = entityData
+            aux["create"].network = NetworkService.addNetwork(entityData.network)
+        }else{
+            aux["connect"] = { ip : entityData.ip }
+        }
+        return aux
+    }
+
     public add = async(entityData) => {
         try {
 
-            if(entityData.network){
+            /*if(entityData.network){
                 if(entityData.network.description){
                     entityData.network = {
                         create : entityData.network
@@ -23,6 +37,10 @@ class IPService extends EntityService {
                         }
                     }
                 }
+            }*/
+
+            if(entityData.network){
+                entityData.network = NetworkService.addNetwork(entityData.network)
             }
             
             const entity = await prisma.iP.create({
@@ -31,7 +49,7 @@ class IPService extends EntityService {
             return entity;
         } catch (error) {
             console.log(error)
-            throw new Error(error.message)
+            throw error
         }
     }
 
@@ -58,8 +76,7 @@ class IPService extends EntityService {
             })
             return entity;
         } catch (error) {
-            console.log(error)
-            throw new Error(error.message)
+            throw error
         }        
 
 

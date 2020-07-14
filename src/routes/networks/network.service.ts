@@ -7,6 +7,18 @@ class NetworkService extends EntityService {
     constructor(){
         super(prisma.network);
     }
+
+    public static addNetwork(entityData){
+        var aux = {}
+        if(entityData.description){
+            delete entityData.id
+            aux["create"] = entityData
+            
+        }else{
+                aux["connect"] = { name : entityData.name }
+        }
+        return aux;
+    }
 }
 
 

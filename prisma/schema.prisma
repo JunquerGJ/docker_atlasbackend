@@ -57,6 +57,12 @@ enum evidenceFiles {
   IMG
 }
 
+enum client {
+  ORANGE
+  JAZZTEL
+  NA
+}
+
 enum assetType {
   WEB
   API
@@ -99,13 +105,15 @@ model Asset {
   accessLogs      logsStatus?      @default(NO)
   activityLogs    logsStatus?      @default(NO)
   status          assetStatus?     @default(ON_PRODUCTION)
-  statusDate      DateTime?        @default(now())
+  statusDate      DateTime?        
   repository      String?
   risk            Float?           @default(0)
   documentation   String?
   description     String?
   assetType       assetType        @default(WEB)
 }
+
+
 
 model Contact {
   assets  ContactToAsset[]
@@ -172,10 +180,11 @@ model Vulnerability {
   description                String
   executedTest               String
   recommendation             String
-  risk                       vulnerabilityRisk
-  status                     vulnerabilityStatus
+  observations               String?
+  risk                       vulnerabilityRisk  
+  status                     vulnerabilityStatus @default(OPEN)
   ticket                     String?
-  source                     sourceType
+  source                     sourceType @default(RED_TEAM)
   cvssAttackvector           String?
   cvssAttackcomplexity       String?
   cvssPrivilegesrequired     String?
@@ -237,8 +246,8 @@ model Server {
 
 model IP {
   id        Int     @default(autoincrement()) @id
-  network   Network @relation(fields: [networkId], references: [id])
-  networkId Int
+  network   Network? @relation(fields: [networkId], references: [id])
+  networkId Int?
   ip        String  @unique
 }
 
@@ -281,14 +290,24 @@ model Profile {
 
 model Domain {
   id            Int            @default(autoincrement()) @id
-  asset         Asset          @relation(fields: [assetId], references: [id])
-  assetId       Int
+  asset         Asset?          @relation(fields: [assetId], references: [id])
+  assetId       Int?
   certificate   Certificate?   @relation(fields: [certificateId], references: [id])
   certificateId Int?
   url           String         @unique
   enviroment    enviromentType @default(PRO)
-  waf        Boolean
   privateDomain Boolean
+  client        client         @default(NA)
+  errorCode     String?
+  lists List[] @relation(references: [id])
+}
+
+model List {
+  id Int @default(autoincrement()) @id
+  name  String @unique
+  description String
+  denyList Boolean
+  domains Domain[] @relation(references: [id])
 }
 
 model Certificate {

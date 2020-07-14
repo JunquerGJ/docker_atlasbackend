@@ -15,7 +15,6 @@ class EntityService {
         this.client = client
     }
 
-
     public add = async(entityData) => {
         try {
             const entity = await this.client.create({
@@ -23,8 +22,7 @@ class EntityService {
             })
             return entity;
         } catch (error) {
-            console.log(error)
-            throw new Error(error.message)
+            throw error
         }
     }
 
@@ -70,8 +68,7 @@ class EntityService {
             })
             return entity;
         } catch (error) {
-            console.log(error)
-            throw new Error(error.message)
+            throw error
         }
     }
 
@@ -145,7 +142,13 @@ class EntityController {
             const newEntity =  await this.service.add(data);
             response.status(200).send(newEntity);
         } catch (error) {
-            next(new HttpException(400,error.message))
+            switch(error.code){
+                case 'P2002':
+                    next(new HttpException(400,this.entityName + " already created. Check "+ error.meta.target[0]+" parameter"))
+                    break
+                default:
+                    next(new HttpException(400,error.message))                    
+            }
         }
     }
 
@@ -164,7 +167,13 @@ class EntityController {
                 next(new HttpException(404, this.entityName + " does not exist"))  
             }
         } catch (error) {
-            next(new HttpException(400,error.message))            
+            switch(error.code){
+                case 'P2002':
+                    next(new HttpException(400,this.entityName + " already created. Check "+ error.meta.target[0]+" parameter"))
+                    break
+                default:
+                    next(new HttpException(400,error.message))                    
+            }            
         }
     }
 

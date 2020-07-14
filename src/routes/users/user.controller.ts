@@ -74,8 +74,13 @@ class UserController extends EntityController {
 
             
         } catch (error) {
-            console.log(error)
-            next(new HttpException(400, error.message))
+            switch(error.code){
+                case 'P2002':
+                    next(new HttpException(400,this.entityName + " already created. Check "+ error.meta.target[0]+" parameter"))
+                    break
+                default:
+                    next(new HttpException(400,error.message))                    
+            }
         }
     }
 
@@ -108,7 +113,13 @@ class UserController extends EntityController {
                 next(new HttpException(404, this.entityName + " does not exist"))
             }
         } catch (error) {
-            next(new HttpException(400, error.message))
+            switch(error.code){
+                case 'P2002':
+                    next(new HttpException(400,this.entityName + " already created. Check "+ error.meta.target[0]+" parameter"))
+                    break
+                default:
+                    next(new HttpException(400,error.message))                    
+            }
         }
     }
 }

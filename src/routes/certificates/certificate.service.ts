@@ -7,6 +7,21 @@ class CertificateService extends EntityService {
     constructor(){
         super(prisma.certificate);
     }
+
+
+    public static addCertificate(entityData) {
+        var aux = {
+
+        }
+        if(entityData.issuer){
+            delete entityData.id
+            aux["create"] = entityData
+            
+        }else{
+                aux["connect"] = { domainName : entityData.domainName }
+        }
+        return aux
+    }
 }
 
 

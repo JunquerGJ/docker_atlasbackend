@@ -9,6 +9,7 @@ import * as https from 'https';
 import * as cors from 'cors';
 import * as fileUpload from 'express-fileupload';
 import * as rateLimit from 'express-rate-limit';
+import * as morgan from "morgan";
 import * as helmet from 'helmet'
 const {constants}  = require('crypto')
 
@@ -34,7 +35,9 @@ class App {
         this.app.use(cookieParser());
         this.app.use(fileUpload());
         this.app.use(defaultLimiter)
-        this.app.use(helmet())
+        this.app.set('trust proxy',1);
+//        this.app.use(helmet())
+        this.app.use(morgan('tiny'))
         this.app.use(cors())
         this.app.use("/auth",loginLimiter)
         this.app.use("/", controllers[0].router);
@@ -53,6 +56,7 @@ class App {
         this.app.use("/", controllers[13].router);
         this.app.use("/", controllers[14].router);
         this.app.use("/", controllers[15].router);
+        this.app.use("/", controllers[16].router);
 
         this.initializeErrorHandling();
         // this.listen()

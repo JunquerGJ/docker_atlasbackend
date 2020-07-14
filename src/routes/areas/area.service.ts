@@ -7,6 +7,19 @@ class AreaService extends EntityService {
     constructor(){
         super(prisma.area);
     }
+
+    public static addArea(entityData){
+        let aux = {
+
+        }
+        if(entityData.description){
+            delete entityData.id
+            aux["create"] = entityData
+        }else{
+            aux["connect"] = { name : entityData.name }
+        }
+        return aux;
+    }
 }
 
 
