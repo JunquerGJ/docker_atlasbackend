@@ -89,6 +89,10 @@ async function createPerms() {
         createPermission('UPDATE', 'Permission'),
         createPermission('DELETE', 'Permission'),
         createPermission('CREATE', 'Permission'),
+        createPermission('CREATE', 'List'),
+        createPermission('READ', 'List'),
+        createPermission('UPDATE', 'List'),
+        createPermission('DELETE', 'List')
     ])
     return (results)
 }
