@@ -10,8 +10,35 @@ class DomainService extends EntityService {
         super(prisma.domain);
     }
 
+      public static addDomains(entityData){
+          var aux = {
+              connectOrCreate : []
+          }
+          var i = 0;
+          for (i = 0; i < entityData.length; i++) {
+            delete entityData[i].id
+            delete entityData[i].asset
+ 
+            if(entityData[i].lists && entityData[i].lists.length>0){
+                entityData[i].lists = ListService.addLists(entityData[i].lists) 
+            }else entityData[i].lists = []
 
-    public static addDomains(entityData) {
+            if(entityData[i].certificate){
+                entityData[i].certificate = CertificateService.addCertificate(entityData[i].certificate)
+            }else entityData[i].certificate = undefined
+
+
+            aux.connectOrCreate.push({
+                create : entityData[i],
+                where : { 
+                    url : entityData[i].url
+                }
+            })
+          }
+          return aux;
+      }
+
+/*    public static addDomains(entityData) {
         var aux = {
             create: [],
             connect: []
@@ -34,7 +61,7 @@ class DomainService extends EntityService {
             }
         }
         return aux;
-    }
+    }*/
 
 
     public add = async (entityData) => {
@@ -103,6 +130,7 @@ class DomainService extends EntityService {
 
     public modify = async (id, entityData) => {
         try {
+            console.log(entityData)
             if (entityData.lists) {
                 var aux = []
                 var i = 0;
@@ -114,12 +142,27 @@ class DomainService extends EntityService {
                 }
             }
 
+            if(entityData.certificate){
+                entityData.certificate = {
+                    connect: {
+                        domainName : entityData.certificate.domainName
+                    }
+                }
+            }else{
+                if (entityData.certificate === null){
+                    entityData.certificate = {
+                        disconnect : true
+                    }
+                }
+            }
+
             const entity = await prisma.domain.update({
                 where: { id: id },
                 data: entityData
             })
             return entity;
         } catch (error) {
+            console.log(error)
             throw error
         }
     }

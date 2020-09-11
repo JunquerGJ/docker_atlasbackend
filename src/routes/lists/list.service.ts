@@ -9,7 +9,25 @@ class ListService extends EntityService {
     }
 
 
-    public static addLists(entityData) {
+    public static addLists(entityData){
+        var aux = {
+            connectOrCreate : []
+        }
+        var i = 0;
+        for (i = 0; i < entityData.length; i++) {
+            delete entityData[i].id
+            delete entityData[i].domains
+            
+
+            aux.connectOrCreate.push({
+                create : entityData[i],
+                where : { name : entityData[i].name }
+            })   
+        }
+        return aux;
+    }
+
+   /* public static addLists(entityData) {
         var aux = {
             connect: [],
             create: []
@@ -29,7 +47,7 @@ class ListService extends EntityService {
         }
 
         return aux;
-    }
+    }*/
 
     public add = async (entityData) => {
         try {

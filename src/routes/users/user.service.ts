@@ -86,7 +86,6 @@ class UserService extends EntityService {
         try {
             const entities = await prisma.user.findMany({
                 where : filters,
-                after : limit,
                 skip : offset,
                 select : {
                     id : true,

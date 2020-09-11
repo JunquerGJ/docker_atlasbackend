@@ -185,7 +185,7 @@ class EntityController {
             const secret = JWT_SECRET;
             const verificationResponse = jwt.verify(request.header('xtoken'), secret) as DataStoredInToken;
             const tokenFuncionalities = verificationResponse.permissions;
-            var relationsObj = JSON.parse(request.query.params)
+            var relationsObj = JSON.parse(request.query.params.toString())
             let relations = request.query ? validateIncludes(tokenFuncionalities,relationsObj) : {}
             const entity = await this.service.get(parseInt(request.params.id),relations)
             if(entity){

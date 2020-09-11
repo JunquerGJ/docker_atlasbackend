@@ -4,39 +4,70 @@ import AreaService from '../areas/area.service';
 import DomainService from '../domains/domain.service';
 import ContactService from '../contacts/contact.service';
 import CharacteristicService from '../characteristics/characteristic.service';
-import IPService from '../ips/ip.service';
+import IPService from '../ips/ip.service';  
 import ServerService from '../servers/server.service';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+    log: ['query','error','warn','info']
+})
 
 class AssetService extends EntityService {
     constructor() {
         super(prisma.asset);
     }
+
+    public static addAssets(entityData){
+        var aux = {
+            connectOrCreate : []
+        }
+        var i = 0;
+        for (i = 0; i < entityData.length; i++) {
+            delete entityData[i].id
+            delete entityData[i].servers
+            if(entityData[i].characteristics && entityData[i].characteristics.length>0){
+                entityData[i].characteristics = CharacteristicService.addCharacteristics(entityData[i].characteristics) 
+            }else entityData[i].characteristics = []
+            if(entityData[i].contacts && entityData[i].contacts.length>0){
+                entityData[i].contacts = {
+                    create : ContactService.addContact(entityData[i].contacts)
+                }
+            }
+            if(entityData[i].Domain && entityData[i].Domain.length>0){
+                entityData[i].Domain = DomainService.addDomains(entityData[i].Domain)
+            }
+
+            if(entityData[i].area){
+                entityData[i].area = AreaService.addArea(entityData[i].area)
+            }else entityData[i].area = undefined
+
+            aux.connectOrCreate.push({
+                create : entityData[i],
+                where : { name : entityData[i].name }
+            })
+        }
+        return aux;
+    }
+
     public add = async (entityData) => {
         try {
             if (entityData.characteristics) {
-                await CharacteristicService.addCharacteristics(entityData.characteristics)
-                entityData.characteristics = {
-                    connect: entityData.characteristics
-                }
+                entityData.characteristics = CharacteristicService.addCharacteristics(entityData.characteristics)
             }
             if (entityData.area) {
                 entityData.area = AreaService.addArea(entityData.area)
             }
-            /*if (entityData.area) {
-                if ("description" in entityData.area) {
-                    delete entityData.area.id
-                    entityData.area = {
-                        create: entityData.area
-                    }
-                } else {
-                    entityData.area = {
-                        connect: entityData.area
-                    }
+            if (entityData.contacts) {
+                entityData.contacts = {
+                    create: ContactService.addContact(entityData.contacts)
                 }
-            }*/
+            }
+            if (entityData.servers) {
+                entityData.servers = ServerService.addServers(entityData.servers)
+            }
 
+            if (entityData.Domain) {
+                entityData.Domain = DomainService.addDomains(entityData.Domain)
+            }
             /*if (entityData.servers) {
                 var auxConnect = []
                 var auxCreate = []
@@ -131,9 +162,7 @@ class AssetService extends EntityService {
                 }
             }*/
 
-            if (entityData.servers) {
-                entityData.servers = ServerService.addServers(entityData.servers)
-            }
+
             /*
                         if (entityData.Domain) {
                             var auxConnect = []
@@ -155,19 +184,13 @@ class AssetService extends EntityService {
                             }
                         }*/
 
-            if (entityData.Domain) {
-                entityData.Domain = DomainService.addDomains(entityData.Domain)
-            }
+            
 
 
 
 
 
-            if (entityData.contacts) {
-                entityData.contacts = {
-                    create: ContactService.addContact(entityData.contacts)
-                }
-            }
+            
             /*if (entityData.contacts) {
                 var aux = []
                 var i = 0;
@@ -212,10 +235,16 @@ class AssetService extends EntityService {
             if (isNaN(id)) {
                 throw new Error("Wrong ID")
             }
-            await prisma.raw(`DELETE FROM "ContactToAsset" where "assetId" = ${id}`)
+            await prisma.$executeRaw(`DELETE FROM "ContactToAsset" where "assetId" = ${id}`)
             //      await prisma.raw(`DELETE FROM "_CharacteristicToServer" where "A" = ${id}`)
 
             await prisma.audit.deleteMany({
+                where: {
+                    assetId: id
+                }
+            })
+
+            await prisma.vulnerability.deleteMany({
                 where: {
                     assetId: id
                 }
@@ -236,14 +265,15 @@ class AssetService extends EntityService {
 
     public modify = async (id, entityData) => {
         try {
-            console.log(entityData)
-            console.log("#####################################")
-
             if (entityData.area) {
                 entityData.area = {
                     connect: {
                         id: entityData.area.id
                     }
+                }
+            }else if (entityData.area === null){
+                entityData.area = {
+                    disconnect: true
                 }
             }
 
@@ -287,7 +317,7 @@ class AssetService extends EntityService {
                 if (isNaN(id)) {
                     throw new Error("Wrong ID")
                 }
-                await prisma.raw(`DELETE FROM "ContactToAsset" where "assetId" = ${id}`)
+                await prisma.$executeRaw(`DELETE FROM "ContactToAsset" where "assetId" = ${id}`)
                 var aux = []
                 var i = 0;
                 for (i = 0; i < entityData.contacts.length; i++) {

@@ -1,10 +1,10 @@
-import  { EntityService } from '../../shared/interfaces/interfaces'
+import { EntityService } from '../../shared/interfaces/interfaces'
 import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
 class AuditService extends EntityService {
-    constructor(){
+    constructor() {
         super(prisma.audit);
     }
 
@@ -12,13 +12,13 @@ class AuditService extends EntityService {
         try {
             if (entityData.asset) {
                 entityData.asset = {
-                    connect : entityData.asset
+                    connect: entityData.asset
                 }
             }
 
             if (entityData.auditor) {
                 entityData.auditor = {
-                    connect : entityData.auditor
+                    connect: entityData.auditor
                 }
             }
             const entity = await prisma.audit.create({
@@ -33,15 +33,17 @@ class AuditService extends EntityService {
         }
     }
 
-    public modify = async (id,entityData) => {
+    public modify = async (id, entityData) => {
         try {
             if (entityData.auditor) {
                 entityData.auditor = {
                     connect: entityData.auditor
                 }
             } else {
-                entityData.auditor = {
-                    disconnect: true
+                if (entityData.auditor === null) {
+                    entityData.auditor = {
+                        disconnect: true
+                    }
                 }
             }
 
@@ -50,8 +52,10 @@ class AuditService extends EntityService {
                     connect: entityData.asset
                 }
             } else {
-                entityData.asset = {
-                    disconnect: true
+                if (entityData.asset === null) {
+                    entityData.asset = {
+                        disconnect: true
+                    }
                 }
             }
 
@@ -60,9 +64,9 @@ class AuditService extends EntityService {
                 data: entityData
             })
             return entity;
-            
+
         } catch (error) {
-            throw error   
+            throw error
         }
     }
 }

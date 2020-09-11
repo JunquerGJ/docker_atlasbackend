@@ -9,7 +9,7 @@ class CertificateService extends EntityService {
     }
 
 
-    public static addCertificate(entityData) {
+    /*public static addCertificate(entityData) {
         var aux = {
 
         }
@@ -21,6 +21,21 @@ class CertificateService extends EntityService {
                 aux["connect"] = { domainName : entityData.domainName }
         }
         return aux
+    }*/
+
+    public static addCertificate(entityData){
+        delete entityData.id    
+        var aux = {
+            connectOrCreate : {
+                where : {
+                    domainName : entityData.domainName
+                },
+                create : 
+                    entityData
+                
+            }
+        }
+        return aux;
     }
 }
 

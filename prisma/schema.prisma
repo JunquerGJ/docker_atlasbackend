@@ -5,6 +5,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["connectOrCreate"]
 }
 
 enum logsStatus {
@@ -19,7 +20,7 @@ enum logsStatus {
 enum GRC {
   NONE
   LOW
-  MEDIUM
+  MEDIUM  
   HIGH
   CRITICAL
 }
@@ -49,7 +50,7 @@ enum vulnerabilityStatus {
   ASSUMED
   MITIGATED
   SOLVED
-  ON_REVISON
+  ON_REVISION
 }
 
 enum evidenceFiles {

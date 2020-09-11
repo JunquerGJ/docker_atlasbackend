@@ -1,15 +1,34 @@
-import  { EntityService } from '../../shared/interfaces/interfaces'
+import { EntityService } from '../../shared/interfaces/interfaces'
 import { PrismaClient } from "@prisma/client"
 import NetworkService from '../networks/network.service';
 
 const prisma = new PrismaClient()
 
 class IPService extends EntityService {
-    constructor(){
+    constructor() {
         super(prisma.iP);
     }
 
 
+    public static addIP(entityData) {
+
+        if (entityData.network) {
+            entityData.network = NetworkService.addNetwork(entityData.network)
+        }
+        delete entityData.id
+        delete entityData.networkId
+        var aux = {
+            connectOrCreate: {
+                where: {
+                    ip: entityData.ip
+                },
+                create:
+                    entityData
+            }
+        }
+        return aux;
+    }
+    /*
     public static addIP(entityData){
         var aux = {}
         if(entityData.network){
@@ -20,9 +39,9 @@ class IPService extends EntityService {
             aux["connect"] = { ip : entityData.ip }
         }
         return aux
-    }
+    }*/
 
-    public add = async(entityData) => {
+    public add = async (entityData) => {
         try {
 
             /*if(entityData.network){
@@ -39,12 +58,12 @@ class IPService extends EntityService {
                 }
             }*/
 
-            if(entityData.network){
+            if (entityData.network) {
                 entityData.network = NetworkService.addNetwork(entityData.network)
             }
-            
+
             const entity = await prisma.iP.create({
-                data : entityData
+                data: entityData
             })
             return entity;
         } catch (error) {
@@ -53,31 +72,31 @@ class IPService extends EntityService {
         }
     }
 
-    public modify = async(id,entityData) => {
+    public modify = async (id, entityData) => {
         var updateData = {}
-        if(entityData.ip){
+        if (entityData.ip) {
             updateData["ip"] = entityData.ip
         }
 
-        if(entityData.network){
+        if (entityData.network) {
             updateData["network"] = {
-                connect : {
-                    id : entityData.network.id
+                connect: {
+                    id: entityData.network.id
                 }
             }
         }
-        if(Object.keys(updateData).length==0)
+        if (Object.keys(updateData).length == 0)
             throw new Error("Nothing to update")
 
         try {
             const entity = await prisma.iP.update({
-                where : { id : id},
-                data : updateData
+                where: { id: id },
+                data: updateData
             })
             return entity;
         } catch (error) {
             throw error
-        }        
+        }
 
 
     }
