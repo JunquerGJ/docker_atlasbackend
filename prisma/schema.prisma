@@ -45,6 +45,7 @@ enum vulnerabilityRisk {
 }
 
 enum vulnerabilityStatus {
+  ANALYSIS
   OPEN
   FALSE_POSITIVE
   ASSUMED
@@ -173,6 +174,8 @@ model Vulnerability {
   cweId                      Int?
   auditor                    User?               @relation(fields: [auditorId], references: [id])
   auditorId                  Int?
+  domain                     Domain?          @relation(fields: [domainId], references: [id])
+  domainId                   Int?
   name                       String
   discoveryDate              DateTime            @default(now())
   communicationDate          DateTime?
