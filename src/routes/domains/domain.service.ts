@@ -1,7 +1,7 @@
 import { EntityService } from '../../shared/interfaces/interfaces'
 import { PrismaClient } from "@prisma/client"
 import CertificateService from '../certificates/certificate.service';
-import ListService from '../lists/list.service';
+import WafService from '../wafs/waf.service';
 
 const prisma = new PrismaClient()
 
@@ -19,9 +19,9 @@ class DomainService extends EntityService {
             delete entityData[i].id
             delete entityData[i].asset
  
-            if(entityData[i].lists && entityData[i].lists.length>0){
-                entityData[i].lists = ListService.addLists(entityData[i].lists) 
-            }else entityData[i].lists = []
+            if(entityData[i].wafs && entityData[i].wafs.length>0){
+                entityData[i].wafs = WafService.addWafs(entityData[i].wafs) 
+            }else entityData[i].wafs = []
 
             if(entityData[i].certificate){
                 entityData[i].certificate = CertificateService.addCertificate(entityData[i].certificate)
@@ -37,6 +37,20 @@ class DomainService extends EntityService {
           }
           return aux;
       }
+
+      public static getSome = async(filters,limit : never,offset : never,relations) => {
+        var params = {where :filters[0],after : limit,offset,select : relations}
+        if(!Object.entries(relations).length){
+            delete params.select
+        }
+        try {
+            const entities = await prisma.domain.findMany(params)
+            return entities;
+        } catch (error) {
+            console.log(error)
+            throw new Error(error.message)
+        }
+    }
 
 /*    public static addDomains(entityData) {
         var aux = {
@@ -89,8 +103,8 @@ class DomainService extends EntityService {
             if (entityData.certificate) {
                 entityData.certificate = CertificateService.addCertificate(entityData.certificate)
             }
-            if (entityData.lists) {
-                entityData.lists = ListService.addLists(entityData.lists)
+            if (entityData.wafs) {
+                entityData.wafs = WafService.addWafs(entityData.wafs)
             }
 
             /* if(entityData.lists){
@@ -116,7 +130,7 @@ class DomainService extends EntityService {
                  }
              }*/
 
-            console.log("DATA ENTITY", entityData)
+
             const entity = await prisma.domain.create({
                 data: entityData
             })
@@ -131,13 +145,13 @@ class DomainService extends EntityService {
     public modify = async (id, entityData) => {
         try {
             console.log(entityData)
-            if (entityData.lists) {
+            if (entityData.wafs) {
                 var aux = []
                 var i = 0;
-                for (i = 0; i < entityData.lists.length; i++) {
-                    aux.push({ id: entityData.lists[i].id })
+                for (i = 0; i < entityData.wafs.length; i++) {
+                    aux.push({ id: entityData.wafs[i].id })
                 }
-                entityData.lists = {
+                entityData.wafs = {
                     set: aux
                 }
             }

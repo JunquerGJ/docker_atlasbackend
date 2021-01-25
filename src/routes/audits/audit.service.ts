@@ -15,18 +15,20 @@ class AuditService extends EntityService {
                     connect: entityData.asset
                 }
             }
-
             if (entityData.auditor) {
                 entityData.auditor = {
                     connect: entityData.auditor
+                }
+            }
+            if (entityData.domain) {
+                entityData.domain = {
+                    connect: entityData.domain
                 }
             }
             const entity = await prisma.audit.create({
                 data: entityData
             })
             return entity;
-
-
         } catch (error) {
             console.log(error)
             throw error
@@ -54,6 +56,18 @@ class AuditService extends EntityService {
             } else {
                 if (entityData.asset === null) {
                     entityData.asset = {
+                        disconnect: true
+                    }
+                }
+            }
+
+            if (entityData.domain) {
+                entityData.domain = {
+                    connect: entityData.domain
+                }
+            } else {
+                if (entityData.domain === null) {
+                    entityData.domain = {
                         disconnect: true
                     }
                 }

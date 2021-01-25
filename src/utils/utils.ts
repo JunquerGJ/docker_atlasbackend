@@ -99,6 +99,16 @@ function validateIncludes(permissions, reqInclude) {
             delete reqInclude.responsable
         }
     }
+    if (reqInclude.wafs) {
+        if (!permissions.includes("READ Waf")) {
+            delete reqInclude.wafs
+        }
+    }
+    if (reqInclude.ids) {
+        if (!permissions.includes("READ Ids")) {
+            delete reqInclude.ids
+        }
+    }
     if (reqInclude.cwe) {
         if (!permissions.includes("READ CWE")) {
             delete reqInclude.cwe
@@ -339,6 +349,24 @@ function validateIncludes2(permissions, aux) {
             reqInclude.servers=true
         }
     }
+
+    if (reqInclude.wafs) {
+        if (!permissions.includes("READ Waf")) {
+            delete reqInclude.wafs
+        }else{
+            reqInclude.wafs=true
+        }
+    }
+
+    if (reqInclude.ids) {
+        if (!permissions.includes("READ Ids")) {
+            delete reqInclude.ids
+        }else{
+            reqInclude.ids=true
+        }
+    }
+
+
     if (reqInclude.vulnerabilities) {
         if (!permissions.includes("READ Vulnerability")) {
             delete reqInclude.vulnerabilities

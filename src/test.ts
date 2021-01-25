@@ -89,10 +89,14 @@ async function createPerms() {
         createPermission('UPDATE', 'Permission'),
         createPermission('DELETE', 'Permission'),
         createPermission('CREATE', 'Permission'),
-        createPermission('CREATE', 'List'),
-        createPermission('READ', 'List'),
-        createPermission('UPDATE', 'List'),
-        createPermission('DELETE', 'List')
+        createPermission('CREATE', 'Waf'),
+        createPermission('READ', 'Waf'),
+        createPermission('UPDATE', 'Waf'),
+        createPermission('DELETE', 'Waf'),
+        createPermission('CREATE', 'Ids'),
+        createPermission('READ', 'Ids'),
+        createPermission('UPDATE', 'Ids'),
+        createPermission('DELETE', 'Ids')
     ])
     return (results)
 }
@@ -154,5 +158,5 @@ main()
         throw e
     })
     .finally(async () => {
-        await prisma.disconnect()
+        await prisma.$disconnect()
     })

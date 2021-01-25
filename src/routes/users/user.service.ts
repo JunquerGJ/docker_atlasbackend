@@ -10,7 +10,7 @@ class UserService extends EntityService {
 
     public login= async( name ) => {
         try {
-            const user = await prisma.user.findOne({
+            const user = await prisma.user.findUnique({
                 where : {
                     name : name
                 },

@@ -1,4 +1,4 @@
-FROM node:12.16.3-stretch
+FROM node:15.5.1-stretch
 WORKDIR /Backend_Prisma
 EXPOSE 5000
 COPY . .

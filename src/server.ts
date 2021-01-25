@@ -16,7 +16,8 @@ import ServerController from './routes/servers/server.controller';
 import CharacteristicController from './routes/characteristics/characteristic.controller';
 import CertificateController from './routes/certificates/certificate.controller';
 import DomainController from './routes/domains/domain.controller';
-import ListController from './routes/lists/list.controller';
+import WafController from './routes/wafs/waf.controller';
+import IdsController from './routes/idss/ids.controller';
 
 
 
@@ -40,7 +41,8 @@ import ListController from './routes/lists/list.controller';
       new CharacteristicController(),
       new CertificateController(),
       new DomainController(),
-      new ListController()
+      new WafController(),
+      new IdsController()
     ]
   );
 

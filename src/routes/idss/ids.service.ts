@@ -3,20 +3,20 @@ import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
-class ListService extends EntityService {
+class IdsService extends EntityService {
     constructor() {
-        super(prisma.list);
+        super(prisma.iDS);
     }
 
 
-    public static addLists(entityData){
+    public static addIds(entityData){
         var aux = {
             connectOrCreate : []
         }
         var i = 0;
         for (i = 0; i < entityData.length; i++) {
             delete entityData[i].id
-            delete entityData[i].domains
+            delete entityData[i].servers
             
 
             aux.connectOrCreate.push({
@@ -51,13 +51,13 @@ class ListService extends EntityService {
 
     public add = async (entityData) => {
         try {
-            if (entityData.domains) {
-                entityData.domains = {
-                    connect: entityData.domains
+            if (entityData.servers) {
+                entityData.servers = {
+                    connect: entityData.servers
                 }
             }
 
-            const entity = await prisma.list.create({
+            const entity = await prisma.iDS.create({
                 data: entityData
             })
             return entity;
@@ -69,18 +69,18 @@ class ListService extends EntityService {
 
     public modify = async (id, entityData) => {
         try {
-            if (entityData.domains) {
+            if (entityData.servers) {
                 var aux = []
                 var i = 0;
-                for (i = 0; i < entityData.domains.length; i++) {
-                    aux.push({ id: entityData.domains[i].id })
+                for (i = 0; i < entityData.servers.length; i++) {
+                    aux.push({ id: entityData.servers[i].id })
                 }
-                entityData.domains = {
+                entityData.servers = {
                     set: aux
                 }
             }
 
-            const entity = await prisma.list.update({
+            const entity = await prisma.iDS.update({
                 where: { id: id },
                 data: entityData
             })
@@ -92,4 +92,4 @@ class ListService extends EntityService {
 }
 
 
-export default ListService;
+export default IdsService;

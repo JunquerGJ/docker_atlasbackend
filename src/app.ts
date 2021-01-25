@@ -57,6 +57,7 @@ class App {
         this.app.use("/", controllers[14].router);
         this.app.use("/", controllers[15].router);
         this.app.use("/", controllers[16].router);
+        this.app.use("/", controllers[17].router);
 
         this.initializeErrorHandling();
         // this.listen()

@@ -4,6 +4,7 @@ import IPService from '../ips/ip.service';
 import CharacteristicService from '../characteristics/characteristic.service';
 import ContactService from '../contacts/contact.service';
 import AssetService from '../assets/asset.service';
+import IdsService from '../idss/ids.service';
 
 const prisma = new PrismaClient()
 
@@ -27,12 +28,14 @@ class ServerService extends EntityService {
             if(entityData[i].ip){
                 entityData[i].ip = IPService.addIP(entityData[i].ip)
             }else entityData[i].ip = undefined
-
             if(entityData[i].contacts && entityData[i].contacts.length>0){
                 entityData[i].contacts = {
                     create : ContactService.addContact(entityData[i].contacts)
                 }
             }
+            if(entityData[i].idss && entityData[i].idss.length>0){
+                entityData[i].idss = IdsService.addIds(entityData[i].idss) 
+            }else entityData[i].idss = []
             aux.connectOrCreate.push({
                 create : entityData[i],
                 where : { hostname : entityData[i].hostname }
@@ -90,6 +93,9 @@ class ServerService extends EntityService {
             }
             if (entityData.assets) {
                 entityData.assets = AssetService.addAssets(entityData.assets)
+            }
+            if (entityData.idss) {
+                entityData.idss = IdsService.addIds(entityData.idss)
             }
             /*if (entityData.ip) {
                 if (entityData.ip.network) {
@@ -239,6 +245,17 @@ class ServerService extends EntityService {
                 }
                 entityData.contacts = {
                     create: aux
+                }
+            }
+
+            if (entityData.idss) {
+                var aux = []
+                var i = 0;
+                for (i = 0; i < entityData.idss.length; i++) {
+                    aux.push({ id: entityData.idss[i].id })
+                }
+                entityData.idss = {
+                    set: aux
                 }
             }
 

@@ -93,7 +93,7 @@ class UserController extends EntityController {
             if (entity) {
                 var data = request.body;
                 delete data.id
-                if (data.password) {
+                if (data.hash) {
                     const algorithm = PW_ALGORITHM
                     const keygen = PW_KEYGENERATOR
                     const key = crypto.scryptSync(keygen, 'salt', 24);
@@ -102,7 +102,7 @@ class UserController extends EntityController {
 
 
 
-                    let hash = cipher.update(data.password, 'utf8', 'hex');
+                    let hash = cipher.update(data.hash, 'utf8', 'hex');
                     hash += cipher.final('hex');
                     data.hash = hash
                     delete data.password

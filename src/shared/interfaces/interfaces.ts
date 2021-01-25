@@ -38,7 +38,7 @@ class EntityService {
             delete params.select
         }
         try {
-            const entity = await this.client.findOne(params)
+            const entity = await this.client.findFirst(params)
             return entity;
         } catch (error) {
             console.log(error)
@@ -47,7 +47,7 @@ class EntityService {
     }
 
     public getSome = async(filters,limit,offset,relations) => {
-        var params = {where :filters,after : limit,offset,select : relations}
+        var params = {where :filters[0],after : limit,offset,select : relations}
         if(!Object.entries(relations).length){
             delete params.select
         }
